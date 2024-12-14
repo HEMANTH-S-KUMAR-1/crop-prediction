@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Crop Prediction</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+        }
+        header {
+            background-color: #4CAF50;
+            color: white;
+            text-align: center;
+            padding: 20px 0;
+        }
+        h1 {
+            margin: 0;
+        }
+        .container {
+            max-width: 800px;
+            margin: 40px auto;
+            padding: 20px;
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            font-weight: bold;
+            display: block;
+            margin-bottom: 5px;
+        }
+        input[type="number"] {
+            width: 100%;
+            padding: 10px;
+            margin: 5px 0 15px 0;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+        input[type="submit"] {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+        input[type="submit"]:hover {
+            background-color: #45a049;
+        }
+        .result {
+            background-color: #e7f7e7;
+            padding: 20px;
+            margin-top: 20px;
+            border-radius: 8px;
+            border: 1px solid #d4e1d4;
+        }
+        .result h3 {
+            color: #4CAF50;
+        }
+        img {
+            max-width: 100%;
+            height: auto;
+            display: block;
+            margin-top: 20px;
+        }
+        footer {
+            text-align: center;
+            padding: 10px;
+            background-color: #333;
+            color: white;
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Crop Prediction</h1>
+        <p>Model Accuracy: {{ accuracy }}%</p>
+    </header>
+
+    <div class="container">
+        <form method="POST" action="/predict">
+            <div class="form-group">
+                <label for="N">Nitrogen (N):</label>
+                <input type="number" step="any" id="N" name="N" required>
+            </div>
+
+            <div class="form-group">
+                <label for="P">Phosphorus (P):</label>
+                <input type="number" step="any" id="P" name="P" required>
+            </div>
+
+            <div class="form-group">
+                <label for="K">Potassium (K):</label>
+                <input type="number" step="any" id="K" name="K" required>
+            </div>
+
+            <div class="form-group">
+                <label for="Temperature">Temperature (°C):</label>
+                <input type="number" step="any" id="Temperature" name="Temperature" required>
+            </div>
+
+            <div class="form-group">
+                <label for="Humidity">Humidity (%):</label>
+                <input type="number" step="any" id="Humidity" name="Humidity" required>
+            </div>
+
+            <div class="form-group">
+                <label for="pH">pH:</label>
+                <input type="number" step="any" id="pH" name="pH" required>
+            </div>
+
+            <div class="form-group">
+                <label for="Rainfall">Rainfall (mm):</label>
+                <input type="number" step="any" id="Rainfall" name="Rainfall" required>
+            </div>
+
+            <div class="form-group">
+                <input type="submit" value="Predict">
+            </div>
+        </form>
+
+        {% if prediction %}
+        <div class="result">
+            <h3>{{ prediction }}</h3>
+            <p>{{ detail }}</p>
+            <img src="{{ chart_url }}" alt="Input vs Typical Values Chart">
+        </div>
+        {% endif %}
+    </div>
+
+    <footer>
+        <p>&copy; 2024 Crop Prediction. All rights reserved.</p>
+    </footer>
+</body>
+</html>
