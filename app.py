@@ -30,6 +30,17 @@ crop_details = {
     # Add more crops and details here
 }
 
+# Define valid ranges for the input parameters
+valid_ranges = {
+    'N': (0, 300),
+    'P': (0, 150),
+    'K': (0, 200),
+    'Temperature': (5, 45),
+    'Humidity': (10, 100),
+    'pH': (4.5, 10),
+    'Rainfall': (0, 2000)
+}
+
 @app.route('/')
 def home():
     return render_template('index.html', accuracy=accuracy)
@@ -46,9 +57,25 @@ def predict():
         pH = float(request.form['pH'])
         rainfall = float(request.form['Rainfall'])
 
+        # Validate input ranges
+        inputs = {
+            'N': N,
+            'P': P,
+            'K': K,
+            'Temperature': temperature,
+            'Humidity': humidity,
+            'pH': pH,
+            'Rainfall': rainfall
+        }
+
+        for param, value in inputs.items():
+            min_val, max_val = valid_ranges[param]
+            if not (min_val <= value <= max_val):
+                return render_template('index.html', prediction=f"Invalid input for {param}: {value}. Must be between {min_val} and {max_val}.")
+
         # Make a prediction
-        inputs = np.array([[N, P, K, temperature, humidity, pH, rainfall]])
-        prediction = model.predict(inputs)[0]
+        input_values = np.array([[N, P, K, temperature, humidity, pH, rainfall]])
+        prediction = model.predict(input_values)[0]
 
         # Get crop details
         detail = crop_details.get(prediction, "Details not available")
