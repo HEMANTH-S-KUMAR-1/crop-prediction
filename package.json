@@ -9,7 +9,9 @@
     "lint": "eslint .",
     "preview": "vite preview",
     "build:production": "NODE_ENV=production vite build",
-    "deploy:preview": "npm run build && npx wrangler pages publish dist --project-name=crop-prediction-system"
+    "deploy:preview": "npm run build && npx wrangler pages publish dist --project-name=crop-prediction-system",
+    "validate-env": "node validate-env.js",
+    "prepare-deploy": "npm run validate-env && npm run lint && npm run build"
   },
   "dependencies": {
     "lucide-react": "^0.344.0",

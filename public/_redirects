@@ -1,0 +1,12 @@
+# Cloudflare Pages Redirects Configuration
+# SPA fallback - redirect all routes to index.html
+/*    /index.html   200
+
+# Optional: Redirect www to non-www (uncomment if needed)
+# https://www.your-domain.com/*  https://your-domain.com/:splat  301
+
+# Optional: Force HTTPS (uncomment if using custom domain)
+# http://your-domain.com/*  https://your-domain.com/:splat  301
+
+# API endpoints (if you add serverless functions later)
+# /api/*    /api/:splat    200

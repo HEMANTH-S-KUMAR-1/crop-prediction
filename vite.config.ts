@@ -1,9 +1,18 @@
-import { defineConfig } from 'vite';
+import { defineConfig, loadEnv } from 'vite';
 import react from '@vitejs/plugin-react';
 
 // https://vitejs.dev/config/
-export default defineConfig({
-  plugins: [react()],
+export default defineConfig(({ mode }) => {
+  // Load environment variables
+  const env = loadEnv(mode, process.cwd(), '');
+  
+  return {
+    plugins: [react()],
+    // Define global constants at compile time
+    define: {
+      __APP_NAME__: JSON.stringify(env.VITE_APP_NAME || 'Crop Prediction System'),
+      __APP_VERSION__: JSON.stringify(env.VITE_APP_VERSION || '1.0.0'),
+    },
   optimizeDeps: {
     exclude: ['lucide-react'],
   },
@@ -32,6 +41,7 @@ export default defineConfig({
   preview: {
     port: 3000,
   },
-  // Cloudflare Pages compatible base URL
-  base: './'
+    // Cloudflare Pages compatible base URL
+    base: './'
+  };
 });
