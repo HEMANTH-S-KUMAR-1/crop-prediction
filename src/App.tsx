@@ -1,6 +1,7 @@
 import { useState, Suspense, lazy } from 'react';
 import { Wheat, History, Info, TrendingUp } from 'lucide-react';
 import { PredictionResult as PredictionResultType } from './services/api';
+import APIStatus from './components/APIStatus';
 
 // Lazy load components for better performance
 const PredictionForm = lazy(() => import('./components/PredictionForm'));
@@ -24,6 +25,9 @@ function App() {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-green-50 to-green-100">
+      {/* API Status Monitor */}
+      <APIStatus />
+      
       {/* Skip to main content link for accessibility */}
       <a 
         href="#main-content" 
@@ -94,6 +98,7 @@ function App() {
       </nav>
 
       {/* Main Content */}
+            {/* Main Content */}
       <main id="main-content" className="container mx-auto px-4 py-8" role="main">
         <Suspense fallback={
           <div className="flex items-center justify-center py-12">

@@ -34,8 +34,8 @@ const PredictionForm: React.FC<PredictionFormProps> = ({ onResult }) => {
       // Step 1: Get location coordinates
       const locationData = await getLocationData(formData.city);
       
-      // Step 2: Get weather data
-      const weatherData = await getWeatherData(locationData.lat, locationData.lon);
+      // Step 2: Get weather data with timezone support
+      const weatherData = await getWeatherData(locationData.lat, locationData.lon, locationData.timezone);
       
       // Step 3: Get soil data
       const soilData = formData.soilMode === 'manual' 
