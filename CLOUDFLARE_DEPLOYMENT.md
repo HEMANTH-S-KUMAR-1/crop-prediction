@@ -1,17 +1,22 @@
-# Cloudflare Pages Deployment Configuration
+# Smart Crop Prediction System - Cloudflare Pages Deployment
 
-## Environment Variables to Set in Cloudflare Dashboard
+## 🌟 API-Powered Architecture (v3.0.0)
 
-### Required Variables
+### **No Environment Variables Required!**
+The system now uses **completely free APIs** with no authentication needed:
+- ✅ **Wikipedia REST API**: Automatic crop information
+- ✅ **Wikipedia Content API**: Detailed agricultural data  
+- ✅ **Open-Meteo API**: Weather and geocoding
+- ✅ **Zero Configuration**: No API keys or tokens required
+
+### Optional Performance Variables
 ```
 NODE_VERSION=18.19.0
-NPM_VERSION=10.2.4
-VITE_APP_NAME=Crop Prediction System
-VITE_APP_VERSION=1.0.0
+VITE_APP_NAME=Smart Crop Prediction System
+VITE_APP_VERSION=3.0.0
 VITE_NODE_ENV=production
-VITE_ENABLE_OFFLINE_MODE=true
-VITE_ENABLE_ANALYTICS=false
-VITE_ENABLE_DEBUG_LOGS=false
+VITE_API_CACHE_DURATION=300000
+VITE_ENABLE_API_LOGS=false
 ```
 
 ### Build Configuration
@@ -35,26 +40,36 @@ VITE_ENABLE_DEBUG_LOGS=false
    Build output directory: dist
    ```
 
-3. **Set Environment Variables**:
-   - Go to Settings → Environment variables
-   - Add the variables listed above
-   - Set them for "Production" environment
+3. **Environment Variables** (Optional):
+   - No variables required for basic functionality
+   - All APIs work without authentication
+   - Optional: Add performance variables if needed
 
-4. **Deploy**:
+4. **Deploy & Verify**:
    - Click "Save and Deploy"
-   - Cloudflare will automatically build and deploy your site
+   - Test crop information retrieval (try "Jaggery", "Potato")
+   - Verify history shows only real predictions
+   - Confirm Wikipedia API integration works
 
 ### Custom Domain (Optional)
 - In Cloudflare Pages settings, go to "Custom domains"
 - Add your domain and follow DNS configuration instructions
 
-### Performance Optimizations
-The project is already optimized for Cloudflare Pages with:
-- ✅ Static site generation
-- ✅ Asset optimization
-- ✅ HTTP/2 server push headers
-- ✅ Caching configurations in `_headers`
-- ✅ SPA routing in `_redirects`
+### 🚀 API Performance Features
+The v3.0.0 system is optimized for Cloudflare's global network:
+- ✅ **Wikipedia API Caching**: Client-side storage reduces API calls
+- ✅ **CORS Optimization**: Proper cross-origin headers configured
+- ✅ **Error Resilience**: Graceful fallbacks when APIs are unavailable
+- ✅ **Global CDN**: Cloudflare caches static assets worldwide
+- ✅ **Real-time Data**: Fresh crop information without manual updates
+
+### 🌾 Supported Crop Categories
+- **Cereals**: Rice, Wheat, Maize, Jowar, Bajra, Ragi, Barley
+- **Pulses**: Gram, Arhar, Moong, Urad, Masoor, Field Pea
+- **Cash Crops**: Cotton, Sugarcane, Jaggery, Tobacco, Jute
+- **Spices**: Turmeric, Chili, Coriander, Cumin, Fenugreek
+- **Vegetables**: Potato, Tomato, Onion, Cabbage, Cauliflower
+- **And 50+ more varieties automatically supported!
 
 ### Monitoring
 - Monitor deployments in Cloudflare Pages dashboard

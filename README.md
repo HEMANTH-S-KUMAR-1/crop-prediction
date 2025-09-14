@@ -1,6 +1,6 @@
 # 🌾 Smart Crop Prediction System
 
-A modern, AI-powered web application that helps Indian farmers make informed crop selection decisions based on real-time weather data, soil conditions, and machine learning predictions.
+A modern, AI-powered web application that helps Indian farmers make informed crop selection decisions based on real-time weather data, soil conditions, and dynamic crop information from live APIs.
 
 ![Crop Prediction System](https://img.shields.io/badge/Status-Production%20Ready-brightgreen)
 ![React](https://img.shields.io/badge/React-18.3.1-blue)
@@ -15,8 +15,8 @@ A modern, AI-powered web application that helps Indian farmers make informed cro
 - **Real-Time Weather Data**: Fetches current weather conditions using Open-Meteo API
 - **Soil Analysis**: Auto-detection or manual input of soil parameters (pH, NPK levels)
 - **Location-Based Recommendations**: Geocoding support for Indian cities
-- **Prediction History**: Track past predictions with confidence scores
-- **Crop Information Database**: Comprehensive crop cultivation guides
+- **Real Prediction History**: Track actual crop predictions made through the system (no sample data)
+- **Dynamic Crop Information**: Live crop data fetched from Wikipedia API for 80+ crops
 
 ### 🌟 Technical Features
 - **Responsive Design**: Mobile-first, works seamlessly across all devices
@@ -36,9 +36,10 @@ A modern, AI-powered web application that helps Indian farmers make informed cro
 - **Lucide React** - Beautiful, customizable icons
 
 ### APIs Used
-- **Open-Meteo API** - Real-time weather data
-- **Nominatim (OpenStreetMap)** - Geocoding and location services
-- **Local Storage** - Prediction history persistence
+- **Open-Meteo API** - Real-time weather data and geocoding
+- **Wikipedia REST API** - Dynamic crop information and descriptions
+- **Wikipedia Content API** - Detailed crop cultivation data
+- **Local Storage** - Real prediction history persistence (no sample data)
 
 ## 🚀 Quick Start
 
@@ -100,16 +101,16 @@ npm run preview
 - Alternative crop suggestions
 
 #### 📊 History Tab
-- View past predictions by Farmer ID
-- Track prediction confidence scores
-- Statistics and analytics
-- Clear history functionality
+- View real predictions by Farmer ID (no sample data)
+- Track actual prediction confidence scores
+- Statistics from genuine user predictions
+- Clear history functionality for real data only
 
 #### 📚 Crop Info Tab
-- Detailed crop cultivation guides
-- Climate and soil requirements
-- Growing seasons and regions
-- Best practices and tips
+- **API-Powered Information**: Live data from Wikipedia for any crop
+- **80+ Supported Crops**: Cereals, pulses, cash crops, vegetables, fruits, spices
+- **Intelligent Data Processing**: Smart extraction of agricultural information
+- **No Manual Database**: All crop information fetched dynamically from free APIs
 
 ## 🌍 Deployment
 
@@ -178,12 +179,15 @@ The system uses a simplified Random Forest-like algorithm that considers:
 - **Soil Properties**: pH level, nitrogen, phosphorus, potassium content
 - **Location**: Geographic coordinates and regional patterns
 
-### Supported Crops
-- **Rice**: High rainfall, warm climate, specific pH requirements
-- **Wheat**: Cool dry climate, moderate water needs
-- **Cotton**: Warm climate, black cotton soil preferred
-- **Sugarcane**: Hot humid climate, high water requirements
-- **Alternative crops**: Maize, pulses, vegetables
+### Supported Crops (80+ Varieties)
+#### **Cereals**: Rice, Wheat, Maize, Jowar, Bajra, Ragi, Barley, Oats
+#### **Pulses**: Gram, Arhar, Moong, Urad, Masoor, Field Pea, Black Gram
+#### **Oilseeds**: Groundnut, Mustard, Sunflower, Safflower, Sesame, Niger, Castor
+#### **Cash Crops**: Cotton, Sugarcane, Jaggery, Tobacco, Jute, Tea, Coffee
+#### **Spices**: Turmeric, Chili, Coriander, Cumin, Fenugreek, Ginger, Garlic
+#### **Vegetables**: Potato, Tomato, Onion, Cabbage, Cauliflower, Brinjal, Okra
+#### **Fruits**: Mango, Banana, Orange, Apple, Grapes, Pomegranate, Papaya
+#### **Plantation**: Tea, Coffee, Rubber, Coconut, Areca Nut, Oil Palm
 
 ### Confidence Scoring
 Predictions include confidence scores (0-100%) based on:
@@ -194,9 +198,9 @@ Predictions include confidence scores (0-100%) based on:
 ## 🔒 Privacy & Data
 
 - **No Personal Data Collection**: System doesn't store personal information
-- **Local Storage Only**: Prediction history stored locally in browser
-- **API Data**: Only location and weather data from public APIs
-- **GDPR Compliant**: No cookies or tracking mechanisms
+- **Real Data Only**: Only genuine predictions stored locally (no sample data)
+- **API Data**: Location, weather, and crop data from free public APIs
+- **GDPR Compliant**: No cookies, tracking, or artificial data generation
 
 ## 🤝 Contributing
 
@@ -223,11 +227,11 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## 🙏 Acknowledgments
 
-- **Open-Meteo**: Weather data API
-- **OpenStreetMap**: Geocoding services
+- **Open-Meteo**: Weather data and geocoding API services
+- **Wikipedia**: Dynamic crop information and agricultural data
 - **Lucide**: Beautiful icon library
 - **Tailwind CSS**: Utility-first CSS framework
-- **Indian Agricultural Research**: Crop cultivation data
+- **Free API Ecosystem**: Enabling dynamic, real-time agricultural information
 
 ## 📞 Support
 
