@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { History, Calendar, MapPin, TrendingUp, RefreshCw, Plus } from 'lucide-react';
-import { initializeSampleData, generateSamplePredictions, addPredictionToHistory, cropSearchSuggestions } from '../services/sampleData';
+import { History, Calendar, MapPin, TrendingUp } from 'lucide-react';
+import { cropSearchSuggestions } from '../services/sampleData';
 
 interface Prediction {
   id: string;
@@ -15,10 +15,7 @@ const HistoryView: React.FC = () => {
   const [userId, setUserId] = useState('farmer_001');
 
   useEffect(() => {
-    // Initialize sample data if needed
-    initializeSampleData(userId);
-    
-    // Load predictions from localStorage
+    // Clear any existing sample data and only load real predictions
     try {
       const storedPredictions = localStorage.getItem('cropPredictions');
       if (storedPredictions) {
@@ -29,9 +26,17 @@ const HistoryView: React.FC = () => {
           city: string;
           crop: string;
           confidence: number;
+          isRealPrediction?: boolean; // Flag to identify real predictions
         }>;
+        
+        // Only keep real predictions and remove all sample data
+        const realPredictions = allPredictions.filter((pred) => pred.isRealPrediction === true);
+        
+        // Update localStorage to only contain real predictions
+        localStorage.setItem('cropPredictions', JSON.stringify(realPredictions));
+        
         // Filter predictions for the current user
-        const userPredictions = allPredictions
+        const userPredictions = realPredictions
           .filter((pred) => pred.userId === userId)
           .map((pred) => ({
             id: pred.id,
@@ -65,61 +70,7 @@ const HistoryView: React.FC = () => {
     }
   };
 
-  const generateMoreSamples = () => {
-    try {
-      const newPredictions = generateSamplePredictions(userId, 10);
-      const storedPredictions = localStorage.getItem('cropPredictions');
-      const allPredictions = storedPredictions ? JSON.parse(storedPredictions) : [];
-      
-      const updatedPredictions = [...allPredictions, ...newPredictions];
-      localStorage.setItem('cropPredictions', JSON.stringify(updatedPredictions));
-      
-      // Refresh the display
-      const userPredictions = updatedPredictions
-        .filter((pred: { userId: string }) => pred.userId === userId)
-        .map((pred: { id: string; date: string; city: string; crop: string; confidence: number }) => ({
-          id: pred.id,
-          date: pred.date,
-          city: pred.city,
-          crop: pred.crop,
-          confidence: pred.confidence
-        }));
-      setPredictions(userPredictions);
-    } catch (error) {
-      console.error('Error generating sample data:', error);
-    }
-  };
 
-  const addQuickPrediction = () => {
-    try {
-      const randomCrop = cropSearchSuggestions[Math.floor(Math.random() * cropSearchSuggestions.length)];
-      const cities = ['Mumbai', 'Delhi', 'Bangalore', 'Chennai', 'Kolkata', 'Hyderabad', 'Pune'];
-      const randomCity = cities[Math.floor(Math.random() * cities.length)];
-      
-      const newPrediction = addPredictionToHistory({
-        userId,
-        date: new Date().toISOString(),
-        city: randomCity,
-        crop: randomCrop,
-        confidence: Math.floor(Math.random() * 30) + 70
-      });
-
-      if (newPrediction) {
-        setPredictions(prev => [
-          {
-            id: newPrediction.id,
-            date: newPrediction.date,
-            city: newPrediction.city,
-            crop: newPrediction.crop,
-            confidence: newPrediction.confidence
-          },
-          ...prev
-        ]);
-      }
-    } catch (error) {
-      console.error('Error adding quick prediction:', error);
-    }
-  };
     
   return (
     <div className="max-w-4xl mx-auto">
@@ -129,30 +80,14 @@ const HistoryView: React.FC = () => {
             <History className="h-8 w-8 text-green-600" />
             <h2 className="text-2xl font-bold text-gray-800">Prediction History</h2>
           </div>
-          <div className="flex space-x-2">
+          {predictions.length > 0 && (
             <button
-              onClick={addQuickPrediction}
-              className="text-green-600 hover:text-green-700 text-sm font-medium px-3 py-1 border border-green-300 rounded hover:bg-green-50 flex items-center space-x-1"
+              onClick={clearHistory}
+              className="text-red-600 hover:text-red-700 text-sm font-medium px-3 py-1 border border-red-300 rounded hover:bg-red-50"
             >
-              <Plus className="h-4 w-4" />
-              <span>Add Sample</span>
+              Clear History
             </button>
-            <button
-              onClick={generateMoreSamples}
-              className="text-blue-600 hover:text-blue-700 text-sm font-medium px-3 py-1 border border-blue-300 rounded hover:bg-blue-50 flex items-center space-x-1"
-            >
-              <RefreshCw className="h-4 w-4" />
-              <span>Generate 10 More</span>
-            </button>
-            {predictions.length > 0 && (
-              <button
-                onClick={clearHistory}
-                className="text-red-600 hover:text-red-700 text-sm font-medium px-3 py-1 border border-red-300 rounded hover:bg-red-50"
-              >
-                Clear History
-              </button>
-            )}
-          </div>
+          )}
         </div>
 
         <div className="mb-6">
@@ -172,12 +107,7 @@ const HistoryView: React.FC = () => {
           <div className="text-center py-8 text-gray-500">
             <History className="h-16 w-16 mx-auto mb-4 opacity-50" />
             <p>No prediction history found for this farmer ID.</p>
-            <button
-              onClick={generateMoreSamples}
-              className="mt-4 bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700"
-            >
-              Generate Sample History
-            </button>
+            <p className="text-sm mt-2">Make crop predictions to see them appear here.</p>
           </div>
         ) : (
           <div className="space-y-4">

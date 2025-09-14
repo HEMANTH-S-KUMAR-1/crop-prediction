@@ -126,3 +126,31 @@ export const addPredictionToHistory = (prediction: Omit<SamplePrediction, 'id'>)
     return null;
   }
 };
+
+// Add a real prediction to history (from actual prediction form)
+export const addRealPredictionToHistory = (prediction: {
+  userId: string;
+  date: string;
+  city: string;
+  crop: string;
+  confidence: number;
+}) => {
+  try {
+    const existingData = localStorage.getItem('cropPredictions');
+    const allPredictions = existingData ? JSON.parse(existingData) as Array<SamplePrediction & { isRealPrediction?: boolean }> : [];
+    
+    const newPrediction = {
+      ...prediction,
+      id: `real_pred_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+      isRealPrediction: true // Flag to identify real predictions
+    };
+    
+    allPredictions.unshift(newPrediction); // Add to beginning (newest first)
+    localStorage.setItem('cropPredictions', JSON.stringify(allPredictions));
+    
+    return newPrediction;
+  } catch (error) {
+    console.error('Error adding real prediction to history:', error);
+    return null;
+  }
+};
