@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback, useMemo } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Info, Search, Book, Droplets, Thermometer, Calendar, MapPin } from 'lucide-react';
 
 interface CropData {
@@ -23,90 +23,260 @@ const CropInfo: React.FC<CropInfoProps> = ({ selectedCrop }) => {
   const [cropData, setCropData] = useState<CropData | null>(null);
   const [loading, setLoading] = useState(false);
 
-  const cropDatabase: Record<string, CropData> = useMemo(() => ({
-    'Rice': {
-      name: 'Rice',
-      scientificName: 'Oryza sativa',
-      description: 'Rice is a staple cereal grain and the most important food crop in India. It is primarily grown in the kharif season with high water requirements.',
-      climate: 'Tropical and subtropical regions with high humidity and temperature between 20-35°C',
-      soil: 'Clay or loamy soil with pH 5.5-7.0. Requires good water retention capacity.',
-      water: 'High water requirement (1000-1500mm annually). Flooded fields preferred.',
-      season: 'Kharif (June-October) and Rabi (December-April) seasons',
-      regions: 'West Bengal, Punjab, Uttar Pradesh, Andhra Pradesh, Tamil Nadu',
-      yield: '2000-4000 kg/hectare',
-      tips: [
-        'Ensure adequate water supply throughout growing season',
-        'Use certified seeds for better yield',
-        'Apply fertilizers in split doses',
-        'Control weeds regularly'
-      ]
-    },
-    'Wheat': {
-      name: 'Wheat',
-      scientificName: 'Triticum aestivum',
-      description: 'Wheat is the second most important cereal crop in India after rice. It is primarily a rabi crop requiring cool climate for growth.',
-      climate: 'Cool and dry climate with temperature between 10-25°C during growing period',
-      soil: 'Well-drained loamy soil with pH 6.0-7.5. Good organic matter content preferred.',
-      water: 'Moderate water requirement (450-600mm). Sensitive to waterlogging.',
-      season: 'Rabi season (November-April)',
-      regions: 'Punjab, Haryana, Uttar Pradesh, Madhya Pradesh, Rajasthan',
-      yield: '3000-4500 kg/hectare',
-      tips: [
-        'Sow at optimal time for maximum yield',
-        'Provide adequate drainage',
-        'Use balanced fertilization',
-        'Monitor for diseases and pests'
-      ]
-    },
-    'Cotton': {
-      name: 'Cotton',
-      scientificName: 'Gossypium spp.',
-      description: 'Cotton is the most important cash crop and natural fiber crop in India. It requires warm climate and adequate rainfall or irrigation.',
-      climate: 'Warm climate with temperature between 21-30°C. Long frost-free period needed.',
-      soil: 'Well-drained black cotton soil (regur) with pH 6.0-8.5. Good water holding capacity.',
-      water: 'Moderate to high water requirement (500-800mm). Critical during flowering and boll development.',
-      season: 'Kharif season (April-October)',
-      regions: 'Gujarat, Maharashtra, Telangana, Karnataka, Punjab, Haryana',
-      yield: '400-600 kg/hectare',
-      tips: [
-        'Choose appropriate variety for your region',
-        'Ensure proper plant spacing',
-        'Integrated pest management essential',
-        'Proper harvesting and storage important'
-      ]
-    },
-    'Sugarcane': {
-      name: 'Sugarcane',
-      scientificName: 'Saccharum officinarum',
-      description: 'Sugarcane is an important cash crop grown for sugar production. It requires hot and humid climate with adequate water supply.',
-      climate: 'Hot and humid climate with temperature between 20-30°C. High sunshine hours needed.',
-      soil: 'Deep, fertile, well-drained loamy soil with pH 6.5-7.5. Rich in organic matter.',
-      water: 'High water requirement (1500-2000mm). Regular irrigation essential.',
-      season: 'Year-round crop with planting in spring (February-April)',
-      regions: 'Uttar Pradesh, Maharashtra, Karnataka, Tamil Nadu, Gujarat',
-      yield: '60-80 tonnes/hectare',
-      tips: [
-        'Use disease-free seed material',
-        'Maintain proper row spacing',
-        'Apply fertilizers at right time',
-        'Harvest at optimal maturity'
-      ]
+  // Cache for API responses
+  const [apiCache, setApiCache] = useState<Record<string, CropData>>({});
+
+  // Function to fetch crop data from Wikipedia API
+  const fetchCropDataFromAPI = useCallback(async (cropName: string): Promise<CropData | null> => {
+    try {
+      // Check cache first
+      if (apiCache[cropName.toLowerCase()]) {
+        return apiCache[cropName.toLowerCase()];
+      }
+
+      // Fetch from Wikipedia API
+      const searchUrl = `https://en.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(cropName)}`;
+      const response = await fetch(searchUrl);
+      
+      if (!response.ok) {
+        throw new Error('Wikipedia API request failed');
+      }
+
+      const data = await response.json();
+      
+      // Extract basic information
+      let description = data.extract || `${cropName} is an important agricultural crop.`;
+      let scientificName = '';
+      
+      // Try to extract scientific name from the description
+      const scientificNameMatch = description.match(/\(([A-Z][a-z]+ [a-z]+)\)/);
+      if (scientificNameMatch) {
+        scientificName = scientificNameMatch[1];
+      }
+
+      // Try to get more detailed information from Wikipedia content API
+      let detailedInfo = null;
+      try {
+        const contentUrl = `https://en.wikipedia.org/w/api.php?action=query&format=json&titles=${encodeURIComponent(cropName)}&prop=extracts&exintro=1&explaintext=1&origin=*`;
+        const contentResponse = await fetch(contentUrl);
+        const contentData = await contentResponse.json();
+        
+        const pages = contentData.query?.pages;
+        if (pages) {
+          const pageKey = Object.keys(pages)[0];
+          if (pages[pageKey]?.extract) {
+            detailedInfo = pages[pageKey].extract;
+            description = detailedInfo.substring(0, 300) + '...';
+          }
+        }
+      } catch {
+        console.log('Could not fetch detailed content, using summary');
+      }
+
+      // Generate intelligent crop information based on common patterns
+      const cropData: CropData = {
+        name: cropName,
+        scientificName: scientificName,
+        description: description,
+        climate: await generateClimateInfo(cropName),
+        soil: await generateSoilInfo(cropName),
+        water: await generateWaterInfo(cropName),
+        season: await generateSeasonInfo(cropName),
+        regions: await generateRegionInfo(cropName),
+        yield: await generateYieldInfo(cropName),
+        tips: await generateCultivationTips(cropName)
+      };
+
+      // Cache the result
+      setApiCache(prev => ({
+        ...prev,
+        [cropName.toLowerCase()]: cropData
+      }));
+
+      return cropData;
+    } catch (error) {
+      console.error('Error fetching crop data:', error);
+      return null;
     }
-  }), []);
+  }, [apiCache]);
+
+  // Helper functions to generate intelligent crop information
+  const generateClimateInfo = async (cropName: string): Promise<string> => {
+    const crop = cropName.toLowerCase();
+    
+    // Climate patterns based on crop type
+    if (crop.includes('rice') || crop.includes('paddy')) {
+      return 'Tropical and subtropical climate with high humidity and temperature 20-35°C. Requires warm, wet conditions.';
+    } else if (crop.includes('wheat')) {
+      return 'Cool, dry climate with temperatures 10-25°C during growing period. Requires moderate rainfall.';
+    } else if (crop.includes('cotton')) {
+      return 'Warm climate with temperatures 21-30°C. Long frost-free period with moderate to high humidity.';
+    } else if (crop.includes('jaggery') || crop.includes('sugarcane')) {
+      return 'Hot, humid tropical climate with temperatures 20-30°C. High sunshine hours required.';
+    } else if (crop.includes('maize') || crop.includes('corn')) {
+      return 'Warm temperate climate with temperatures 18-27°C. Moderate rainfall during growing season.';
+    } else if (crop.includes('soybean')) {
+      return 'Warm climate with temperatures 20-30°C. Moderate to high rainfall required.';
+    } else if (crop.includes('potato')) {
+      return 'Cool climate with temperatures 15-20°C. Requires well-distributed rainfall.';
+    } else if (crop.includes('tomato')) {
+      return 'Warm climate with temperatures 20-25°C. Requires moderate humidity and rainfall.';
+    } else {
+      return 'Temperate to tropical climate with moderate temperatures and rainfall. Specific requirements vary by variety.';
+    }
+  };
+
+  const generateSoilInfo = async (cropName: string): Promise<string> => {
+    const crop = cropName.toLowerCase();
+    
+    if (crop.includes('rice') || crop.includes('paddy')) {
+      return 'Clay or clayey loam soil with pH 5.5-7.0. Good water retention capacity required.';
+    } else if (crop.includes('wheat')) {
+      return 'Well-drained loamy soil with pH 6.0-7.5. Good organic matter content preferred.';
+    } else if (crop.includes('cotton')) {
+      return 'Deep, well-drained black cotton soil with pH 6.0-8.5. Good water holding capacity.';
+    } else if (crop.includes('jaggery') || crop.includes('sugarcane')) {
+      return 'Deep, fertile, well-drained loamy soil with pH 6.5-7.5. Rich in organic matter.';
+    } else if (crop.includes('potato')) {
+      return 'Sandy loam to loam soil with pH 5.5-6.5. Well-drained with good organic content.';
+    } else if (crop.includes('tomato')) {
+      return 'Well-drained sandy loam soil with pH 6.0-7.0. Rich in organic matter.';
+    } else {
+      return 'Well-drained fertile soil with pH 6.0-7.5. Good organic matter content recommended.';
+    }
+  };
+
+  const generateWaterInfo = async (cropName: string): Promise<string> => {
+    const crop = cropName.toLowerCase();
+    
+    if (crop.includes('rice') || crop.includes('paddy')) {
+      return 'High water requirement (1000-1500mm annually). Flooded field conditions preferred.';
+    } else if (crop.includes('sugarcane') || crop.includes('jaggery')) {
+      return 'High water requirement (1500-2000mm annually). Regular irrigation essential.';
+    } else if (crop.includes('cotton')) {
+      return 'Moderate to high water requirement (500-800mm). Critical during flowering and boll development.';
+    } else if (crop.includes('wheat')) {
+      return 'Moderate water requirement (450-600mm). Sensitive to waterlogging.';
+    } else {
+      return 'Moderate water requirement (400-800mm annually). Regular irrigation recommended.';
+    }
+  };
+
+  const generateSeasonInfo = async (cropName: string): Promise<string> => {
+    const crop = cropName.toLowerCase();
+    
+    if (crop.includes('rice') || crop.includes('paddy')) {
+      return 'Kharif season (June-October) and Rabi season (December-April) depending on variety.';
+    } else if (crop.includes('wheat')) {
+      return 'Rabi season (November-April). Winter crop requiring cool weather.';
+    } else if (crop.includes('cotton')) {
+      return 'Kharif season (April-October). Long growing season required.';
+    } else if (crop.includes('sugarcane') || crop.includes('jaggery')) {
+      return 'Year-round crop with planting typically in spring (February-April).';
+    } else if (crop.includes('maize') || crop.includes('corn')) {
+      return 'Kharif season (June-September) and Rabi season (November-February).';
+    } else {
+      return 'Season varies by region and variety. Both Kharif and Rabi seasons possible.';
+    }
+  };
+
+  const generateRegionInfo = async (cropName: string): Promise<string> => {
+    const crop = cropName.toLowerCase();
+    
+    if (crop.includes('rice') || crop.includes('paddy')) {
+      return 'West Bengal, Punjab, Uttar Pradesh, Andhra Pradesh, Tamil Nadu, Odisha';
+    } else if (crop.includes('wheat')) {
+      return 'Punjab, Haryana, Uttar Pradesh, Madhya Pradesh, Rajasthan, Bihar';
+    } else if (crop.includes('cotton')) {
+      return 'Gujarat, Maharashtra, Telangana, Karnataka, Punjab, Haryana';
+    } else if (crop.includes('sugarcane') || crop.includes('jaggery')) {
+      return 'Uttar Pradesh, Maharashtra, Karnataka, Tamil Nadu, Gujarat, Punjab';
+    } else {
+      return 'Cultivated across multiple states in India. Major growing regions vary by climate suitability.';
+    }
+  };
+
+  const generateYieldInfo = async (cropName: string): Promise<string> => {
+    const crop = cropName.toLowerCase();
+    
+    if (crop.includes('rice') || crop.includes('paddy')) {
+      return '2000-4000 kg/hectare depending on variety and farming practices.';
+    } else if (crop.includes('wheat')) {
+      return '3000-4500 kg/hectare under good management conditions.';
+    } else if (crop.includes('cotton')) {
+      return '400-600 kg/hectare of cotton fiber.';
+    } else if (crop.includes('sugarcane') || crop.includes('jaggery')) {
+      return '60-80 tonnes/hectare of cane. Jaggery yield: 10-15% of cane weight.';
+    } else if (crop.includes('potato')) {
+      return '20-30 tonnes/hectare under good conditions.';
+    } else if (crop.includes('tomato')) {
+      return '25-40 tonnes/hectare depending on variety.';
+    } else {
+      return 'Yield varies significantly based on variety, climate, and farming practices.';
+    }
+  };
+
+  const generateCultivationTips = async (cropName: string): Promise<string[]> => {
+    const crop = cropName.toLowerCase();
+    
+    const commonTips = [
+      'Use quality seeds from certified sources',
+      'Follow proper sowing time and spacing',
+      'Apply balanced fertilization',
+      'Monitor for pests and diseases regularly',
+      'Ensure adequate water management',
+      'Harvest at proper maturity stage'
+    ];
+
+    if (crop.includes('jaggery') || crop.includes('sugarcane')) {
+      return [
+        'Select disease-free and pest-free seed cane',
+        'Plant during optimal season (Feb-April)',
+        'Maintain proper spacing between rows',
+        'Apply organic manure and balanced fertilizers',
+        'Ensure regular irrigation especially during dry periods',
+        'Harvest when cane reaches full maturity (10-12 months)',
+        'Process immediately after harvesting for best jaggery quality'
+      ];
+    }
+
+    return commonTips;
+  };
 
   const handleSearch = useCallback(async (crop: string = searchCrop) => {
     if (!crop.trim()) return;
 
     setLoading(true);
     
-    // Simulate API call - in real app, call Wikipedia API
-    setTimeout(() => {
-      const foundKey = Object.keys(cropDatabase).find(key => 
-        key.toLowerCase().includes(crop.toLowerCase())
-      );
-      const cropInfo = cropDatabase[crop] || (foundKey ? cropDatabase[foundKey] : null);
+    try {
+      // Try to fetch from API first
+      const apiData = await fetchCropDataFromAPI(crop);
       
-      setCropData(cropInfo || {
+      if (apiData) {
+        setCropData(apiData);
+      } else {
+        // Fallback data if API fails
+        setCropData({
+          name: crop,
+          description: `${crop} is an important agricultural crop. While specific details are being updated, it contributes significantly to agricultural production.`,
+          climate: 'Climate requirements vary by region and variety. Generally requires favorable temperature and humidity conditions.',
+          soil: 'Requires well-drained, fertile soil with appropriate pH levels for optimal growth.',
+          water: 'Water requirements depend on crop type and growing conditions. Adequate irrigation is essential.',
+          season: 'Growing season varies by region and variety. Consult local agricultural guidelines.',
+          regions: 'Grown in various regions with suitable climate and soil conditions.',
+          yield: 'Yield varies based on variety, farming practices, and environmental conditions.',
+          tips: [
+            'Consult local agricultural extension services',
+            'Use certified seeds and proper planting techniques',
+            'Follow integrated pest management practices',
+            'Ensure proper soil preparation and nutrition',
+            'Monitor crop health regularly'
+          ]
+        });
+      }
+    } catch (error) {
+      console.error('Error fetching crop data:', error);
+      setCropData({
         name: crop,
         description: `Information about ${crop} is currently being updated. Please check back later.`,
         climate: 'Climate information not available',
@@ -117,9 +287,10 @@ const CropInfo: React.FC<CropInfoProps> = ({ selectedCrop }) => {
         yield: 'Yield information not available',
         tips: ['Consult local agricultural experts for guidance']
       });
+    } finally {
       setLoading(false);
-    }, 1000);
-  }, [searchCrop, cropDatabase]);
+    }
+  }, [searchCrop, fetchCropDataFromAPI]);
 
   useEffect(() => {
     if (selectedCrop) {
@@ -263,8 +434,22 @@ const CropInfo: React.FC<CropInfoProps> = ({ selectedCrop }) => {
         {!cropData && !loading && (
           <div className="text-center py-8 text-gray-500">
             <Book className="h-16 w-16 mx-auto mb-4 opacity-50" />
-            <p>Search for a crop to view detailed information</p>
-            <p className="text-sm mt-2">Available: Rice, Wheat, Cotton, Sugarcane, and more</p>
+            <p>Search for any crop to view detailed information</p>
+            <p className="text-sm mt-2">Examples: Rice, Wheat, Cotton, Jaggery, Potato, Tomato, Maize, etc.</p>
+            <div className="mt-4 flex flex-wrap justify-center gap-2">
+              {['Rice', 'Wheat', 'Cotton', 'Jaggery', 'Potato', 'Tomato', 'Maize', 'Soybean'].map((crop) => (
+                <button
+                  key={crop}
+                  onClick={() => {
+                    setSearchCrop(crop);
+                    handleSearch(crop);
+                  }}
+                  className="px-3 py-1 bg-green-100 text-green-700 rounded-full text-sm hover:bg-green-200 transition-colors"
+                >
+                  {crop}
+                </button>
+              ))}
+            </div>
           </div>
         )}
       </div>
