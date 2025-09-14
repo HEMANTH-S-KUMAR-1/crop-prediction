@@ -1,10 +1,12 @@
-import { useState } from 'react';
+import { useState, Suspense, lazy } from 'react';
 import { Wheat, History, Info, TrendingUp } from 'lucide-react';
-import PredictionForm from './components/PredictionForm';
-import PredictionResult from './components/PredictionResult';
-import HistoryView from './components/HistoryView';
-import CropInfo from './components/CropInfo';
 import { PredictionResult as PredictionResultType } from './services/api';
+
+// Lazy load components for better performance
+const PredictionForm = lazy(() => import('./components/PredictionForm'));
+const PredictionResult = lazy(() => import('./components/PredictionResult'));
+const HistoryView = lazy(() => import('./components/HistoryView'));
+const CropInfo = lazy(() => import('./components/CropInfo'));
 
 function App() {
   const [activeTab, setActiveTab] = useState('predict');
@@ -22,6 +24,14 @@ function App() {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-green-50 to-green-100">
+      {/* Skip to main content link for accessibility */}
+      <a 
+        href="#main-content" 
+        className="sr-only focus:not-sr-only focus:absolute focus:top-0 focus:left-0 bg-green-600 text-white p-2 z-50 rounded-br"
+      >
+        Skip to main content
+      </a>
+      
       {/* Header */}
       <header className="bg-white shadow-md border-b-4 border-green-600" role="banner">
         <div className="container mx-auto px-4 py-6">
@@ -84,30 +94,37 @@ function App() {
       </nav>
 
       {/* Main Content */}
-      <main className="container mx-auto px-4 py-8" role="main">
-        {activeTab === 'predict' && (
-          <div className="space-y-8" role="tabpanel" id="predict-panel" aria-labelledby="predict-tab">
-            <PredictionForm onResult={handlePredictionResult} />
-            {predictionResult && (
-              <PredictionResult 
-                result={predictionResult} 
-                onCropSelect={handleCropSelect}
-              />
-            )}
+      <main id="main-content" className="container mx-auto px-4 py-8" role="main">
+        <Suspense fallback={
+          <div className="flex items-center justify-center py-12">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-green-600"></div>
+            <span className="ml-3 text-gray-600">Loading...</span>
           </div>
-        )}
-        
-        {activeTab === 'history' && (
-          <div role="tabpanel" id="history-panel" aria-labelledby="history-tab">
-            <HistoryView />
-          </div>
-        )}
-        
-        {activeTab === 'crop-info' && (
-          <div role="tabpanel" id="crop-info-panel" aria-labelledby="crop-info-tab">
-            <CropInfo selectedCrop={selectedCrop} />
-          </div>
-        )}
+        }>
+          {activeTab === 'predict' && (
+            <div className="space-y-8" role="tabpanel" id="predict-panel" aria-labelledby="predict-tab">
+              <PredictionForm onResult={handlePredictionResult} />
+              {predictionResult && (
+                <PredictionResult 
+                  result={predictionResult} 
+                  onCropSelect={handleCropSelect}
+                />
+              )}
+            </div>
+          )}
+          
+          {activeTab === 'history' && (
+            <div role="tabpanel" id="history-panel" aria-labelledby="history-tab">
+              <HistoryView />
+            </div>
+          )}
+          
+          {activeTab === 'crop-info' && (
+            <div role="tabpanel" id="crop-info-panel" aria-labelledby="crop-info-tab">
+              <CropInfo selectedCrop={selectedCrop} />
+            </div>
+          )}
+        </Suspense>
       </main>
 
       {/* Footer */}

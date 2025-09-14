@@ -29,6 +29,10 @@ export default defineConfig(({ mode }) => {
           vendor: ['react', 'react-dom'],
           icons: ['lucide-react'],
         },
+        // Optimize chunk file names
+        chunkFileNames: 'assets/[name]-[hash].js',
+        entryFileNames: 'assets/[name]-[hash].js',
+        assetFileNames: 'assets/[name]-[hash].[ext]',
       },
     },
     // Increase chunk size warning limit
