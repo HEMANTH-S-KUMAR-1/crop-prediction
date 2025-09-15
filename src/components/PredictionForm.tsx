@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { MapPin, Cloud, Droplets, Thermometer, Loader2 } from 'lucide-react';
 import { getLocationData, getWeatherData, getSoilData, predictCrop } from '../services/api';
+import { getCurrentUserId } from '../services/userService';
 
 import { PredictionResult } from '../services/api';
 
@@ -11,7 +12,7 @@ interface PredictionFormProps {
 const PredictionForm: React.FC<PredictionFormProps> = ({ onResult }) => {
   const [formData, setFormData] = useState({
     city: '',
-    userId: 'farmer_001', // Default user ID
+    userId: getCurrentUserId(), // Get actual user ID
     soilMode: 'auto' // 'auto' or 'manual'
   });
   const [manualSoilData, setManualSoilData] = useState({

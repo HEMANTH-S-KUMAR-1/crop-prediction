@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { History, Calendar, MapPin, TrendingUp } from 'lucide-react';
 import { cropSearchSuggestions } from '../services/sampleData';
+import { getCurrentUserId, getCurrentUserDisplayName } from '../services/userService';
 
 interface Prediction {
   id: string;
@@ -12,7 +13,7 @@ interface Prediction {
 
 const HistoryView: React.FC = () => {
   const [predictions, setPredictions] = useState<Prediction[]>([]);
-  const [userId, setUserId] = useState('farmer_001');
+  const [userId] = useState(getCurrentUserId());
 
   useEffect(() => {
     // Clear any existing sample data and only load real predictions
@@ -91,16 +92,18 @@ const HistoryView: React.FC = () => {
         </div>
 
         <div className="mb-6">
-          <label htmlFor="userId" className="block text-sm font-medium text-gray-700 mb-2">
-            Farmer ID
-          </label>
-          <input
-            type="text"
-            id="userId"
-            value={userId}
-            onChange={(e) => setUserId(e.target.value)}
-            className="w-64 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500"
-          />
+          <div className="bg-green-50 p-4 rounded-lg border border-green-200">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-gray-700">Current User</p>
+                <p className="text-lg font-semibold text-green-700">{getCurrentUserDisplayName()}</p>
+                <p className="text-xs text-gray-500">ID: {userId}</p>
+              </div>
+              <div className="text-right">
+                <p className="text-sm text-gray-600">Viewing history for this user</p>
+              </div>
+            </div>
+          </div>
         </div>
 
         {predictions.length === 0 ? (

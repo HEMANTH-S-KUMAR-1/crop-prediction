@@ -547,7 +547,8 @@ async function savePredictionToDatabase(prediction: PredictionResult, userId: st
       city: prediction.location.city,
       crop: prediction.recommendedCrop,
       confidence: prediction.confidence,
-      fullPrediction: prediction
+      fullPrediction: prediction,
+      isRealPrediction: true // Mark as real user prediction
     };
     
     // Add new prediction to the beginning of the array
