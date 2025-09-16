@@ -1,5 +1,34 @@
 # 📝 CHANGELOG - Smart Crop Prediction System
 
+## 🆕 **v4.0.0 - Simplified User Experience** (2025-09-16)
+
+### 🌟 **Major System Simplification**
+
+#### **🗑️ User System Removal**
+- ✨ **REMOVED**: User accounts, farmer IDs, and session management
+- 🗑️ **REMOVED**: `userService.ts` and all user-related functionality
+- 🔄 **SIMPLIFIED**: Prediction form no longer requires farmer ID input
+- 🎯 **STREAMLINED**: Focus purely on crop prediction functionality
+
+#### **📊 History System Cleanup**
+- 🚫 **REMOVED**: All sample data generation and initialization
+- ✅ **SIMPLIFIED**: History shows all real predictions (no user filtering)
+- 🗑️ **REMOVED**: Sample prediction functions from `sampleData.ts`
+- 🔄 **IMPROVED**: Clear history removes all data instead of user-specific data
+- 🎯 **FOCUSED**: Store only genuine predictions made through the form
+
+#### **🎨 UI/UX Improvements**
+- 🗑️ **REMOVED**: Confusing farmer ID display and input fields
+- 🔄 **SIMPLIFIED**: Clean prediction form without user management
+- ✅ **IMPROVED**: More intuitive history view showing all predictions
+- 🎯 **STREAMLINED**: Eliminated user confusion around IDs and sessions
+
+### 🔧 **Technical Changes**
+- **API**: Removed `userId` parameter from `PredictionInput` interface
+- **Storage**: Predictions stored without user association
+- **Components**: Updated `PredictionForm.tsx` and `HistoryView.tsx`
+- **Build**: Smaller bundle size with removed user management code
+
 ## 🆕 **v3.0.0 - API-Powered Crop Information System** (2025-09-14)
 
 ### 🌟 **Major Breaking Changes**

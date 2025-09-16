@@ -15,7 +15,7 @@ A modern, AI-powered web application that helps Indian farmers make informed cro
 - **Real-Time Weather Data**: Fetches current weather conditions using Open-Meteo API
 - **Soil Analysis**: Auto-detection or manual input of soil parameters (pH, NPK levels)
 - **Location-Based Recommendations**: Geocoding support for Indian cities
-- **Real Prediction History**: Track actual crop predictions made through the system (no sample data)
+- **Real Prediction History**: Track actual crop predictions made through the system (no sample data or user IDs)
 - **Dynamic Crop Information**: Live crop data fetched from Wikipedia API for 80+ crops
 
 ### 🌟 Technical Features
@@ -39,7 +39,7 @@ A modern, AI-powered web application that helps Indian farmers make informed cro
 - **Open-Meteo API** - Real-time weather data and geocoding
 - **Wikipedia REST API** - Dynamic crop information and descriptions
 - **Wikipedia Content API** - Detailed crop cultivation data
-- **Local Storage** - Real prediction history persistence (no sample data)
+- **Local Storage** - Real prediction history persistence (no sample data or user management)
 
 ## 🚀 Quick Start
 
@@ -101,10 +101,11 @@ npm run preview
 - Alternative crop suggestions
 
 #### 📊 History Tab
-- View real predictions by Farmer ID (no sample data)
-- Track actual prediction confidence scores
-- Statistics from genuine user predictions
-- Clear history functionality for real data only
+- View all real predictions made through the system (no sample data)
+- Track actual prediction confidence scores  
+- Statistics from genuine user predictions only
+- Clear history functionality removes all stored predictions
+- No user accounts or farmer IDs required
 
 #### 📚 Crop Info Tab
 - **API-Powered Information**: Live data from Wikipedia for any crop
