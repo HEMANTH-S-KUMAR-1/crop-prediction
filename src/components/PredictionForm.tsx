@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { MapPin, Cloud, Droplets, Thermometer, Loader2 } from 'lucide-react';
 import { getLocationData, getWeatherData, getSoilData, predictCrop } from '../services/api';
-import { getCurrentUserId } from '../services/userService';
 
 import { PredictionResult } from '../services/api';
 
@@ -12,7 +11,6 @@ interface PredictionFormProps {
 const PredictionForm: React.FC<PredictionFormProps> = ({ onResult }) => {
   const [formData, setFormData] = useState({
     city: '',
-    userId: getCurrentUserId(), // Get actual user ID
     soilMode: 'auto' // 'auto' or 'manual'
   });
   const [manualSoilData, setManualSoilData] = useState({
@@ -47,8 +45,7 @@ const PredictionForm: React.FC<PredictionFormProps> = ({ onResult }) => {
       const prediction = await predictCrop({
         location: locationData,
         weather: weatherData,
-        soil: soilData,
-        userId: formData.userId
+        soil: soilData
       });
 
       onResult(prediction);
@@ -220,20 +217,6 @@ const PredictionForm: React.FC<PredictionFormProps> = ({ onResult }) => {
                 </p>
               </div>
             )}
-
-            <div>
-              <label htmlFor="userId" className="block text-sm font-medium text-gray-700 mb-2">
-                Farmer ID (Optional)
-              </label>
-              <input
-                type="text"
-                id="userId"
-                name="userId"
-                value={formData.userId}
-                onChange={handleInputChange}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500"
-              />
-            </div>
 
             <button
               type="submit"

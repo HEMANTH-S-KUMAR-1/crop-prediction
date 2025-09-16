@@ -63,7 +63,6 @@ export interface PredictionInput {
   location: LocationData;
   weather: WeatherData;
   soil: SoilData;
-  userId: string;
 }
 
 export interface PredictionResult {
@@ -364,8 +363,8 @@ export async function predictCrop(input: PredictionInput): Promise<PredictionRes
     
     const prediction = runSimplifiedMLModel(input);
     
-    // Save to database (in real app)
-    await savePredictionToDatabase(prediction, input.userId);
+    // Save to local storage for history
+    await savePredictionToDatabase(prediction);
     
     return prediction;
   } catch (error) {
@@ -533,7 +532,7 @@ function getMockSoilData(): SoilData {
   };
 }
 
-async function savePredictionToDatabase(prediction: PredictionResult, userId: string): Promise<void> {
+async function savePredictionToDatabase(prediction: PredictionResult): Promise<void> {
   try {
     // Get existing predictions from localStorage
     const existingPredictions = localStorage.getItem('cropPredictions');
@@ -542,7 +541,6 @@ async function savePredictionToDatabase(prediction: PredictionResult, userId: st
     // Create prediction record
     const predictionRecord = {
       id: prediction.predictionId,
-      userId: userId,
       date: prediction.timestamp.split('T')[0], // Extract date part
       city: prediction.location.city,
       crop: prediction.recommendedCrop,
