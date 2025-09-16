@@ -10,7 +10,7 @@ export interface SamplePrediction {
 }
 
 // Generate sample prediction history for testing
-export const generateSamplePredictions = (userId: string = 'farmer_001', count: number = 15): SamplePrediction[] => {
+export const generateSamplePredictions = (userId: string, count: number = 15): SamplePrediction[] => {
   const crops = [
     'Rice', 'Wheat', 'Cotton', 'Jaggery', 'Sugarcane', 'Maize', 'Potato', 'Tomato',
     'Soybean', 'Mustard', 'Gram', 'Arhar', 'Groundnut', 'Sunflower', 'Jowar',
@@ -80,7 +80,7 @@ export const cropSearchSuggestions = [
 ];
 
 // Initialize sample data in localStorage if not present
-export const initializeSampleData = (userId: string = 'farmer_001') => {
+export const initializeSampleData = (userId: string) => {
   try {
     const existingData = localStorage.getItem('cropPredictions');
     
